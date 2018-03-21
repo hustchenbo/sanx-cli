@@ -1,0 +1,136 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const download = require('../lib/utils/download');
+const program = require('commander');
+const exists = require('fs').existsSync;
+const path = require('path');
+const ora = require('ora');
+const chalk = require('chalk');
+const inquirer = require('inquirer');
+const home = require('user-home');
+const logger = require('../lib/utils/logger');
+const generate = require('../lib/generate');
+const cliVersion = require('../lib/version');
+const localPath = require('../lib/utils/local-path');
+
+const isLocalPath = localPath.isLocalPath;
+const getTemplatePath = localPath.getTemplatePath;
+
+const consolePadding = '   ';
+
+/**
+ * Usage.
+ */
+
+program.usage('<template-name> [project-name]')
+    .version(cliVersion())
+    .option('-c, --clone', 'use git clone');
+
+/**
+ * Help.
+ */
+
+program.on('--help', () => {
+    console.log('  Examples:');
+    console.log();
+    console.log(chalk.gray(`${consolePadding}# create a new project with an official template`));
+    console.log(`${consolePadding}$ san init hustchenbo/san-webpack my-project`);
+    console.log();
+});
+
+/**
+ * Help.
+ */
+
+function help() {
+    program.parse(process.argv);
+    if (program.args.length < 1) {
+        return program.help();
+    }
+}
+
+help();
+
+/**
+ * Settings.
+ */
+
+let template = program.args[0];
+const rawName = program.args[1];
+const toCurrentDirectory = !rawName || rawName === '.';
+const name = toCurrentDirectory ? path.relative('../', process.cwd()) : rawName;
+const to = path.resolve(rawName || '.');
+const clone = program.clone || false;
+
+// template will download in the home dictionary .san-templates
+const templateLocation = path.join(home, '.san-templates', template.replace(/[\/:]/g, '-'));
+
+/**
+ * Padding.
+ */
+
+console.log();
+process.on('exit', () => {
+    console.log();
+});
+
+/**
+ * Prepare.
+ */
+
+let task = null;
+
+if (toCurrentDirectory || exists(to)) {
+    task = inquirer.prompt([{
+        type: 'confirm',
+        message: toCurrentDirectory
+            ? 'Generate the project in current directory?'
+            : 'Target directory exists. Continue?',
+        name: 'ok'
+    }]).then(answers => {
+        if (answers.ok) {
+            return run();
+        }
+    })
+} else {
+    task = run();
+}
+
+task.then(() => logger.success(`success generated project ${name}`))
+    .catch((err) => {
+        logger.error(err);
+    }
+);
+
+
+/**
+ * Main task.
+ */
+
+async function run() {
+    // more tasks will add here
+
+    if (!isLocalPath(template)) {
+        const spinner = ora('downloading template');
+        spinner.start();
+        try {
+            await download.repo(template, templateLocation, {clone});
+            spinner.stop();
+        } catch (err) {
+            console.log();
+            logger.error(err);
+            throw new Error(`Download template ${template} failed`);
+        } finally {
+            spinner.stop();
+        }
+    } else {
+        const templatePath = getTemplatePath(template);
+        if (!exists(templatePath)) {
+            throw new Error(`Local template ${template} not found`);
+        }
+    }
+
+    return generate(name, templateLocation, to);
+}

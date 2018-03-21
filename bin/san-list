@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const chalk = require('chalk');
+
+const repo = {
+    name: 'webpack',
+    description: 'A san template building with Webpack using sanx-ui san-store......'
+};
+
+/**
+ * Padding.
+ */
+
+console.log();
+process.on('exit', () => {
+    console.log();
+});
+
+/**
+ * List repos.
+ */
+
+
+console.log('Available official templates:');
+console.log();
+
+console.log(
+    '  ' + chalk.yellow('★') +
+    '  ' + chalk.blue(repo.name) +
+    ' - ' + repo.description);
