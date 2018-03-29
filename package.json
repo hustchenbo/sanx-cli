@@ -3,9 +3,9 @@
     "version": "1.0.2",
     "description": "SanX CLI is a scaffolding for san development. ",
     "bin": {
-        "san": "bin/san",
-        "san-init": "bin/san-init",
-        "san-list": "bin/san-list"
+        "sanx": "bin/san",
+        "sanx-init": "bin/san-init",
+        "sanx-list": "bin/san-list"
     },
     "repository": {
         "type": "git",
