@@ -1,6 +1,6 @@
 {
     "name": "sanx-cli",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "SanX CLI is a scaffolding for san development. ",
     "bin": {
         "sanx": "bin/san",
