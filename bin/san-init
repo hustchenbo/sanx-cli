@@ -64,8 +64,8 @@ const name = toCurrentDirectory ? path.relative('../', process.cwd()) : rawName;
 const to = path.resolve(rawName || '.');
 const clone = program.clone || false;
 
-// template will download in the home dictionary .san-templates
-const templateLocation = path.join(home, '.san-templates', template.replace(/[\/:]/g, '-'));
+
+let templateLocation = '.';
 
 /**
  * Padding.
@@ -116,6 +116,8 @@ async function run() {
         const spinner = ora('downloading template');
         spinner.start();
         try {
+            // template will download in the home dictionary .san-templates
+            templateLocation = path.join(home, '.san-templates', template.replace(/[\/:]/g, '-'));
             await download.repo(template, templateLocation, {clone});
             spinner.stop();
         } catch (err) {
@@ -130,6 +132,7 @@ async function run() {
         if (!exists(templatePath)) {
             throw new Error(`Local template ${template} not found`);
         }
+        templateLocation = templatePath;
     }
 
     return generate(name, templateLocation, to);
