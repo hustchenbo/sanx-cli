@@ -5,7 +5,7 @@
 const chalk = require('chalk');
 
 const repo = {
-    name: 'webpack',
+    name: 'hustchenbo/san-webpack',
     description: 'A san template building with Webpack using sanx-ui san-store......'
 };
 
